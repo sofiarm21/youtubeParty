@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
+import socket from './socket'
 import './App.css';
 
 const App = ()  => {
@@ -7,6 +8,19 @@ const App = ()  => {
     const [youtubePlayerReady, setYoutubePlayerReady] = useState(false)
     const [startVideo, setStartVideo] = useState(0)
     const [endVideo, setEndVideo] = useState(null)
+
+    // socket.on('connect_error', (error) => {
+    //     console.log('Failed to connect to server');
+    //     console.log(error);
+    // });
+    //
+    // socket.io.on('error', (error) => {
+    //     console.log('and error happened');
+    //     console.log(error);
+    // });
+    
+    console.log('socket');
+    console.log(socket);
 
     useEffect(() => {
         if (!window.YT) {
@@ -16,6 +30,12 @@ const App = ()  => {
             onYouTubePlayerAPIReady(window.YT)
         }
     })
+
+    useEffect(() => {
+        console.log('UE[]');
+        socket.connect()
+    }, [])
+
 
     const loadYT = async () => {
         const tag = document.createElement('script');
@@ -31,7 +51,7 @@ const App = ()  => {
                 onReady: onPlayerReady,
                 onStateChange: onPlayerStateChange
             },
-        });
+        })
     }
 
     const onPlayerStateChange = (event) => {
@@ -42,14 +62,13 @@ const App = ()  => {
         console.log(event.target.playerInfo.currentTime);
         console.log('playing total');
         console.log(event.target.playerInfo.duration);
-
     }
 
     const onPlayerReady = (event) => {
         event.target.playVideo();
         setYoutubePlayerReady(true)
 
-    };
+    }
 
     return (
         <div className="App">
