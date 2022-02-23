@@ -20,11 +20,6 @@ socket.on('connect_error', (error) => {
     console.log(error);
 });
 
-// socket.io.on('error', (error) => {
-//     console.log('and error happened');
-//     console.log(error);
-// });
-
 
 socket.onAny((event, ...args) => {
     console.log('socket any');
