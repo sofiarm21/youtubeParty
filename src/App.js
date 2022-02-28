@@ -30,19 +30,6 @@ const App = ()  => {
         stopPlayer(ms)
     })
 
-
-    console.log('socket');
-    console.log(socket);
-
-    useEffect(() => {
-        // if (!window.YT) {
-        //     loadYT()
-        //     window.onYouTubeIframeAPIReady = onYouTubePlayerAPIReady
-        // } else {
-        //     onYouTubePlayerAPIReady(window.YT)
-        // }
-    })
-
     useEffect(() => {
         console.log('UE[]');
         if (!window.YT) {
