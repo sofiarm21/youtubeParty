@@ -5,29 +5,6 @@ import './App.css';
 
 const App = ()  => {
 
-    const [ytPlayer, setYtPlayer] = useState(null)
-    const [videoDuration, setVideoDuration] = useState(null)
-
-    useEffect(() => {
-        document.addEventListener("click", seekSecond);
-        if (!window.YT) {
-            loadYT()
-            window.onYouTubeIframeAPIReady = onYouTubePlayerAPIReady
-        } else {
-            onYouTubePlayerAPIReady(window.YT)
-        }
-        socket.connect()
-    }, [])
-
-    useEffect(() => {
-        console.log('ytPlayer');
-        console.log(ytPlayer);
-        if (ytPlayer && ytPlayer.playerInfo) {
-            console.log(ytPlayer.playerInfo.duration);
-        }
-    }, [ytPlayer])
-
-
     socket.on('video:play', (ms) => {
         console.log('video:play ' + ms);
         playPlayer(ms)
@@ -38,16 +15,32 @@ const App = ()  => {
         stopPlayer(ms)
     })
 
+    const [ytPlayer, setYtPlayer] = useState(null)
+    const [videoDuration, setVideoDuration] = useState(null)
+    const [sliderX, setSliderX] = useState(0)
+
+    const bar = document.getElementById('progess-bar')
+
+    useEffect(() => {
+        if (!window.YT) {
+            loadYT()
+            window.onYouTubeIframeAPIReady = onYouTubePlayerAPIReady
+        } else {
+            onYouTubePlayerAPIReady(window.YT)
+        }
+        socket.connect()
+    }, [])
+
     const playPlayer = (ms) => {
         if (ytPlayer != null) {
             ytPlayer.playVideo()
+            console.log('ytPlayer');
+            console.log(ytPlayer);
         }
     }
 
     const stopPlayer = (ms) => {
-        console.log('ytPlayer sp');
-        console.log(ytPlayer);
-        if (ytPlayer && ytPlayer.playerInfo.playerState == 1) {
+        if (ytPlayer && window.YT.PlayerState.PLAYING) {
             if (ms) {
                 ytPlayer.seekTo(ms)
             }
@@ -56,18 +49,11 @@ const App = ()  => {
     }
 
     const onPlayerReady = (event) => {
-        console.log('event.target.playerInfo.duration');
-        console.log(event.target.playerInfo.duration);
         setVideoDuration(event.target.playerInfo.duration)
         event.target.playVideo()
     }
 
     const onPlayerStateChange = (event) => {
-        console.log('event.target.playerInfo.currentTime');
-        console.log(event.target.playerInfo.currentTime);
-        // if (!videoDuration) {
-        //     setVideoDuration(event.target.playerInfo.currentTime)
-        // }
         if (event.data == window.YT.PlayerState.PLAYING) {
             socket.emit('video:play', event.target.playerInfo.currentTime)
         } else {
@@ -101,22 +87,26 @@ const App = ()  => {
         })
         if (!ytPlayer) {
             setYtPlayer(player)
-            console.log('player');
-            console.log(player);
         }
     }
 
     const seekSecond = (event) => {
-        const bar = document.getElementById('progess-bar')
-        if (event.clientY > bar.getBoundingClientRect().top && event.clientY < bar.getBoundingClientRect().bottom) {
-            console.log('bar clicked');
-            console.log('videoDuration');
-            console.log(videoDuration);
+        if (bar && event.clientY > bar.getBoundingClientRect().top && event.clientY < bar.getBoundingClientRect().bottom) {
             const pxPerSecond = bar.getBoundingClientRect().width / videoDuration
-            console.log('pxPerSecond');
-            console.log(pxPerSecond);
+            setSliderX(event.clientX)
+            if (ytPlayer) {
+                ytPlayer.seekTo(event.clientX / pxPerSecond)
+            }
         }
     }
+
+    document.addEventListener('click', seekSecond)
+
+    setInterval(() => {
+        if (ytPlayer && bar) {
+            setSliderX(ytPlayer.playerInfo.currentTime / (bar.getBoundingClientRect().width / videoDuration))
+        }
+    }, 4000)
 
     return (
         <div className='App row'>
@@ -145,9 +135,12 @@ const App = ()  => {
                     id='progess-bar'
                     className='row'
                 >
-                    <div className='col-12' style={{ background: 'black' }}>
+                    <div className='col-12' style={{ background: 'black', height: '20px' }}>
                         <div className='slider row'>
-                            <div className='col-auto' style={{ background: 'white', width: '5px'}}>
+                            <div
+                                className='col-auto'
+                                style={{ background: 'white', width: '5px', position: 'absolute', left: `${sliderX}px` }}
+                            >
                                 s
                             </div>
                         </div>
