@@ -15,14 +15,16 @@ const playVideo  = (socket, arg) => {
 }
 
 const stopVideo = (socket, arg) => {
-    console.log('stopVideo');
     socket.broadcast.emit('video:stop', arg)
 }
 
 const seekVideo = (socket, arg) => {
-    console.log('seek video');
-    console.log(arg);
     socket.broadcast.emit('video:seek', arg)
+}
+
+const changeVideo = (socket, arg) => {
+    console.log('video:change ' + arg);
+    socket.broadcast.emit('video:change', arg)
 }
 
 io.on('connection', (socket) => {
@@ -33,6 +35,7 @@ const onConnection = (socket) => {
     socket.on('video:play', (arg) => playVideo(socket, arg))
     socket.on('video:stop', (arg) => stopVideo(socket, arg))
     socket.on('video:seek', (arg) => seekVideo(socket, arg))
+    socket.on('video:change', (arg) => changeVideo(socket, arg))
 }
 
 httpServer.listen(3001, () => {

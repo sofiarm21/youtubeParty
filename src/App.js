@@ -8,6 +8,7 @@ const App = ()  => {
     const [ytPlayer, setYtPlayer] = useState(null)
     const [videoDuration, setVideoDuration] = useState(null)
     const [sliderX, setSliderX] = useState(0)
+    const [youtubeVideoId, setYoutubeVideoId] = useState(null)
 
     const bar = document.getElementById('progess-bar')
 
@@ -28,6 +29,9 @@ const App = ()  => {
         socket.on('video:seek', (sc) => {
             seekSecond(sc)
         })
+        socket.on('video:change', (id) => {
+            setYoutubeVideoId(id)
+        })
     },[socket, ytPlayer])
 
     useEffect(() => {
@@ -39,6 +43,14 @@ const App = ()  => {
         }
         socket.connect()
     }, [])
+
+    useEffect(() => {
+        if (youtubeVideoId && ytPlayer) {
+            ytPlayer.loadVideoById(youtubeVideoId, 5, "large")
+        }
+    }, [youtubeVideoId])
+
+
 
     const playPlayer = () => {
         if (ytPlayer != null) {
@@ -56,12 +68,13 @@ const App = ()  => {
 
     const onPlayerReady = (event) => {
         setVideoDuration(event.target.playerInfo.duration)
-        event.target.playVideo()
+        //event.target.playVideo()
     }
 
     const onPlayerStateChange = (event) => {
         if (event.data == window.YT.PlayerState.PLAYING) {
             //socket.emit('video:play', event.target.playerInfo.currentTime)
+            event.target.unMute()
         } else if (event.data == window.YT.PlayerState.PAUSED) {
             //socket.emit('video:stop', event.target.playerInfo.currentTime)
         } else if (event.data == window.YT.PlayerState.BUFFERING) {
@@ -83,6 +96,7 @@ const App = ()  => {
             playerVars: {
                 'autoplay': 1,
                 'controls': 0,
+                'mute': 1
                 // 'disablekb': 1,
                 // 'modestbranding': 1,
                 // 'rel': 0,
@@ -116,6 +130,13 @@ const App = ()  => {
         }
     }
 
+    const handleSubmit = (event) => {
+        console.log(event.target[0].value);
+        socket.emit('video:change', event.target[0].value)
+        setYoutubeVideoId(event.target[0].value)
+        event.preventDefault();
+    }
+
     setInterval(() => {
         if (ytPlayer && bar && window.YT.PlayerState.PLAYING) {
             setSliderX(ytPlayer.playerInfo.currentTime * (bar.getBoundingClientRect().width / videoDuration))
@@ -124,6 +145,23 @@ const App = ()  => {
 
     return (
         <div className='App row'>
+            <div className='col-6 mx-auto'>
+                <form onSubmit={handleSubmit}>
+                    <div className='form-group'>
+                        <label>Video Id</label>
+                        <input
+                            className='form-control'
+                            placeholder='Enter Id'
+                        />
+                        <button
+                            type='submit'
+                            className='btn btn-primary'
+                        >
+                            Submit
+                        </button>
+                    </div>
+                </form>
+            </div>
             <div className='col-12 py-4 px-2'>
                 <div id='ytplayer' className='w-100'>
                 </div>
