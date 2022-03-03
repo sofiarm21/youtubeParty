@@ -5,21 +5,34 @@ import './App.css';
 
 const App = ()  => {
 
-    socket.on('video:play', (ms) => {
-        console.log('video:play ' + ms);
-        playPlayer(ms)
-    })
 
-    socket.on('video:stop', (ms) => {
-        console.log('video:stop ' + ms);
-        stopPlayer(ms)
-    })
 
     const [ytPlayer, setYtPlayer] = useState(null)
     const [videoDuration, setVideoDuration] = useState(null)
     const [sliderX, setSliderX] = useState(0)
 
     const bar = document.getElementById('progess-bar')
+
+    useEffect(() => {
+        socket.on('video:play', () => {
+            if (ytPlayer != null) {
+                if (ytPlayer.playerInfo.playerState == 3) {
+                    stopPlayer()
+                }
+                ytPlayer.playVideo()
+            }
+        })
+
+        socket.on('video:stop', () => {
+            if (ytPlayer != null) {
+                ytPlayer.pauseVideo()
+            }
+        })
+
+        socket.on('video:seek', (sc) => {
+            seekSecond(sc)
+        })
+    },[socket, ytPlayer])
 
     useEffect(() => {
         if (!window.YT) {
@@ -31,19 +44,16 @@ const App = ()  => {
         socket.connect()
     }, [])
 
-    const playPlayer = (ms) => {
+    const playPlayer = () => {
         if (ytPlayer != null) {
+            socket.emit('video:play')
             ytPlayer.playVideo()
-            console.log('ytPlayer');
-            console.log(ytPlayer);
         }
     }
 
     const stopPlayer = (ms) => {
-        if (ytPlayer && window.YT.PlayerState.PLAYING) {
-            if (ms) {
-                ytPlayer.seekTo(ms)
-            }
+        if (ytPlayer) {
+            socket.emit('video:stop')
             ytPlayer.pauseVideo()
         }
     }
@@ -55,9 +65,10 @@ const App = ()  => {
 
     const onPlayerStateChange = (event) => {
         if (event.data == window.YT.PlayerState.PLAYING) {
-            socket.emit('video:play', event.target.playerInfo.currentTime)
-        } else {
-            socket.emit('video:stop', event.target.playerInfo.currentTime)
+            //socket.emit('video:play', event.target.playerInfo.currentTime)
+        } else if (event.data == window.YT.PlayerState.PAUSED) {
+            //socket.emit('video:stop', event.target.playerInfo.currentTime)
+        } else if (event.data == window.YT.PlayerState.BUFFERING) {
         }
     }
 
@@ -71,6 +82,7 @@ const App = ()  => {
     const onYouTubePlayerAPIReady = () => {
         const player = new window.YT.Player('ytplayer', {
             width: window.screen.width,
+            height: window.screen.height - 200,
             videoId: 'M7lc1UVf-VE',
             playerVars: {
                 'autoplay': 1,
@@ -90,50 +102,39 @@ const App = ()  => {
         }
     }
 
-    const seekSecond = (event) => {
+    const seekSecond = (sc) => {
+        if (ytPlayer) {
+            ytPlayer.seekTo(sc)
+        }
+    }
+
+    const seekSecondOnTap = (event) => {
         if (bar && event.clientY > bar.getBoundingClientRect().top && event.clientY < bar.getBoundingClientRect().bottom) {
             const pxPerSecond = bar.getBoundingClientRect().width / videoDuration
             setSliderX(event.clientX)
             if (ytPlayer) {
                 ytPlayer.seekTo(event.clientX / pxPerSecond)
+                socket.emit('video:seek', event.clientX / pxPerSecond)
+                stopPlayer()
             }
         }
     }
 
-    document.addEventListener('click', seekSecond)
-
     setInterval(() => {
-        if (ytPlayer && bar) {
-            setSliderX(ytPlayer.playerInfo.currentTime / (bar.getBoundingClientRect().width / videoDuration))
+        if (ytPlayer && bar && window.YT.PlayerState.PLAYING) {
+            setSliderX(ytPlayer.playerInfo.currentTime * (bar.getBoundingClientRect().width / videoDuration))
         }
-    }, 4000)
+    }, 1000)
 
     return (
         <div className='App row'>
             <div className='col-12 py-4 px-2'>
-                <div id='ytplayer'>
+                <div id='ytplayer' className='w-100'>
                 </div>
-            </div>
-            <div className='col-12'>
-                <button
-                    type='button'
-                    className='btn btn-dark'
-                    onClick={(event) => playPlayer(event)}
-                >
-                    Play
-                </button>
-                <button
-                    type='button'
-                    className='btn btn-dark'
-                    onClick={() => stopPlayer()}
-                >
-                    Pause
-                </button>
-            </div>
-            <div className='col-12 mt-5'>
                 <div
                     id='progess-bar'
                     className='row'
+                    onClick={(event) => seekSecondOnTap(event)}
                 >
                     <div className='col-12' style={{ background: 'black', height: '20px' }}>
                         <div className='slider row'>
@@ -146,6 +147,25 @@ const App = ()  => {
                         </div>
                     </div>
                 </div>
+            </div>
+            <div className='col-12 mt-5'>
+
+            </div>
+            <div className='col-12'>
+                <button
+                    type='button'
+                    className='btn btn-dark mx-2'
+                    onClick={() => playPlayer()}
+                >
+                    Play
+                </button>
+                <button
+                    type='button'
+                    className='btn btn-dark mx-2'
+                    onClick={() => stopPlayer()}
+                >
+                    Pause
+                </button>
             </div>
         </div>
     )

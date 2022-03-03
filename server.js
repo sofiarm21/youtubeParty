@@ -11,29 +11,28 @@ const io = new Server(httpServer, {
 })
 
 const playVideo  = (socket, arg) => {
-    console.log('playVideo');
-    console.log(arg);
     socket.broadcast.emit('video:play', arg)
-
 }
 
 const stopVideo = (socket, arg) => {
     console.log('stopVideo');
-    console.log(arg);
-    console.log(socket.id);
     socket.broadcast.emit('video:stop', arg)
 }
 
+const seekVideo = (socket, arg) => {
+    console.log('seek video');
+    console.log(arg);
+    socket.broadcast.emit('video:seek', arg)
+}
+
 io.on('connection', (socket) => {
-    console.log(socket.id);
     onConnection(socket)
 })
 
 const onConnection = (socket) => {
-    console.log('socket');
-    console.log(socket.id);
     socket.on('video:play', (arg) => playVideo(socket, arg))
     socket.on('video:stop', (arg) => stopVideo(socket, arg))
+    socket.on('video:seek', (arg) => seekVideo(socket, arg))
 }
 
 httpServer.listen(3001, () => {
