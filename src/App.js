@@ -5,8 +5,6 @@ import './App.css';
 
 const App = ()  => {
 
-
-
     const [ytPlayer, setYtPlayer] = useState(null)
     const [videoDuration, setVideoDuration] = useState(null)
     const [sliderX, setSliderX] = useState(0)
@@ -22,13 +20,11 @@ const App = ()  => {
                 ytPlayer.playVideo()
             }
         })
-
         socket.on('video:stop', () => {
             if (ytPlayer != null) {
                 ytPlayer.pauseVideo()
             }
         })
-
         socket.on('video:seek', (sc) => {
             seekSecond(sc)
         })
