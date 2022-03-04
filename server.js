@@ -9,13 +9,11 @@ const app = express()
 const httpServer = createServer(app)
 const io = new Server(httpServer, {
     cors: {
-        origin: 'https://youtube-house-party.herokuapp.com'
+        origin: process.env.NODE_ENV === 'production' ? 'https://youtube-house-party.herokuapp.com' : 'http://localhost:3000'
     }
 })
 
 const playVideo  = (socket, arg) => {
-    console.log('arg');
-    console.log(arg);
     const { room } = arg
     console.log('video:play ' + room);
     socket.broadcast.to(room).emit('video:play', room)

@@ -3,9 +3,6 @@ const { API_ROOT } = require('./constants')
 
 const URL = API_ROOT;
 const socket = io(URL);
-console.log('socket');
-console.log(socket);
-
 
 socket.on('connect', (args) => {
     console.log('Successfully connected!');
