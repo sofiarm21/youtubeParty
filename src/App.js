@@ -55,20 +55,18 @@ const App = ()  => {
         }
     }, [youtubeVideoId])
 
-
-
     const playPlayer = () => {
         if (ytPlayer != null) {
             console.log('socket');
             console.log(socket);
-            socket.emit('video:play', { room: '1234' })
+            socket.emit('video:play', { room: roomId })
             ytPlayer.playVideo()
         }
     }
 
     const stopPlayer = (ms) => {
         if (ytPlayer) {
-            socket.emit('video:stop', { room: '1234' })
+            socket.emit('video:stop', { room: roomId })
             ytPlayer.pauseVideo()
         }
     }
@@ -128,17 +126,24 @@ const App = ()  => {
             setSliderX(event.clientX)
             if (ytPlayer) {
                 ytPlayer.seekTo(event.clientX / pxPerSecond)
-                socket.emit('video:seek', { room: '1234', sc: event.clientX / pxPerSecond })
+                socket.emit('video:seek', { room: roomId, sc: event.clientX / pxPerSecond })
                 stopPlayer()
             }
         }
     }
 
     const handleSubmit = (event) => {
-        socket.emit('video:change', { room: '1234', sc: event.target[0].value })
+        socket.emit('video:change', { room: roomId, sc: event.target[0].value })
         setYoutubeVideoId(event.target[0].value)
         ytPlayer.pauseVideo()
         event.preventDefault();
+    }
+
+    const joinNewSocketRoom = () => {
+        const value =  document.getElementById('new-socket-room-id').value
+        console.log(value);
+        setRoomId(value)
+        socket.emit('room:join', value)
     }
 
     setInterval(() => {
@@ -166,6 +171,7 @@ const App = ()  => {
             </div>
             <div className='col-auto'>
                 <input
+                    id='new-socket-room-id'
                     className='form-control'
                     placeholder='Enter Room Id'
                 />
@@ -174,6 +180,7 @@ const App = ()  => {
                 <button
                     type='submit'
                     className='btn btn-primary'
+                    onClick={() => joinNewSocketRoom()}
                 >
                     Join
                 </button>
