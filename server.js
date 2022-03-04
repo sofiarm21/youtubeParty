@@ -2,6 +2,9 @@ const express = require('express')
 const { createServer } = require('http')
 const { Server } = require('socket.io')
 
+const isProduction = process.env.NODE_ENV === 'production';
+const port = isProduction ? process.env.PORT : 3001;
+
 const app = express()
 const httpServer = createServer(app)
 const io = new Server(httpServer, {
@@ -51,6 +54,6 @@ const onConnection = (socket) => {
     socket.on('room:join', (arg) => joinRoom(socket, arg))
 }
 
-httpServer.listen(3001, () => {
-    console.log('Server running on port 3001');
+httpServer.listen(port, () => {
+    console.log(`Server running on port ${port}`);
 })

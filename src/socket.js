@@ -1,7 +1,7 @@
 const { io } = require('socket.io-client');
+const { API_ROOT } = require('./constants')
 
-
-const URL = 'http://localhost:3001/';
+const URL = API_ROOT;
 const socket = io(URL);
 console.log('socket');
 console.log(socket);
