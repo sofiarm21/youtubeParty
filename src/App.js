@@ -156,6 +156,56 @@ const App = ()  => {
 
     return (
         <div className='App row justify-content-center'>
+            <div className='col-12'>
+                <div className='card video-settings border-0 bg-light'>
+                    <div className=''>
+                        <button
+                            className='accordion-button video-settings-header text-white'
+                            type='button'
+                            data-bs-toggle='collapse'
+                            data-bs-target='#collapseOne'
+                            aria-expanded='true'
+                            aria-controls='collapseOne'
+                        >
+                            <b>Video Controls</b>
+                        </button>
+                    </div>
+                    <div
+                        id='collapseOne'
+                        className='accordion-collapse collapse'
+                        aria-labelledby='headingOne'
+                        data-bs-parent='#accordionExample'
+                    >
+                        <div className='accordion-body'>
+                            <div className='row'>
+                                <div className='col-auto mx-3'>
+                                    <p>Change the video Id to stream another video</p>
+                                </div>
+                                <div className='col-auto mx-3'>
+                                    <form onSubmit={handleSubmit}>
+                                        <div className='row form-group'>
+                                            <div className='col-auto'>
+                                                <input
+                                                    className='form-control'
+                                                    placeholder='Enter Id'
+                                                />
+                                                </div>
+                                                <div className='col-auto'>
+                                                <button
+                                                    type='submit'
+                                                    className='btn btn-primary'
+                                                >
+                                                    Submit
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div className='col-12 mt-3'>
                 <h3 className='title text-white font-weight-bold'>
                     YoutubeParty 🎉
@@ -225,21 +275,7 @@ const App = ()  => {
                 </button>
             </div>
             <div className='col-6 mx-auto'>
-                <form onSubmit={handleSubmit}>
-                    <div className='form-group'>
-                        <label>Video Id</label>
-                        <input
-                            className='form-control'
-                            placeholder='Enter Id'
-                        />
-                        <button
-                            type='submit'
-                            className='btn btn-primary'
-                        >
-                            Submit
-                        </button>
-                    </div>
-                </form>
+
             </div>
         </div>
     )
