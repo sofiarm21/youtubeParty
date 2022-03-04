@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
 import socket from './socket'
-import './App.css';
 
 const App = ()  => {
 
@@ -9,6 +8,7 @@ const App = ()  => {
     const [videoDuration, setVideoDuration] = useState(null)
     const [sliderX, setSliderX] = useState(0)
     const [youtubeVideoId, setYoutubeVideoId] = useState(null)
+    const [roomId, setRoomId] = useState('1234')
 
     const bar = document.getElementById('progess-bar')
 
@@ -20,6 +20,7 @@ const App = ()  => {
             onYouTubePlayerAPIReady(window.YT)
         }
         socket.connect()
+        socket.emit('room:join', '1234')
     }, [])
 
     useEffect(() => {
@@ -40,7 +41,6 @@ const App = ()  => {
             seekSecond(sc)
         })
         socket.on('video:change', (id) => {
-            console.log('video:change');
             setYoutubeVideoId(id)
             if (ytPlayer) {
                 ytPlayer.pauseVideo()
@@ -59,14 +59,16 @@ const App = ()  => {
 
     const playPlayer = () => {
         if (ytPlayer != null) {
-            socket.emit('video:play')
+            console.log('socket');
+            console.log(socket);
+            socket.emit('video:play', { room: '1234' })
             ytPlayer.playVideo()
         }
     }
 
     const stopPlayer = (ms) => {
         if (ytPlayer) {
-            socket.emit('video:stop')
+            socket.emit('video:stop', { room: '1234' })
             ytPlayer.pauseVideo()
         }
     }
@@ -126,14 +128,14 @@ const App = ()  => {
             setSliderX(event.clientX)
             if (ytPlayer) {
                 ytPlayer.seekTo(event.clientX / pxPerSecond)
-                socket.emit('video:seek', event.clientX / pxPerSecond)
+                socket.emit('video:seek', { room: '1234', sc: event.clientX / pxPerSecond })
                 stopPlayer()
             }
         }
     }
 
     const handleSubmit = (event) => {
-        socket.emit('video:change', event.target[0].value)
+        socket.emit('video:change', { room: '1234', sc: event.target[0].value })
         setYoutubeVideoId(event.target[0].value)
         ytPlayer.pauseVideo()
         event.preventDefault();
@@ -146,7 +148,73 @@ const App = ()  => {
     }, 1000)
 
     return (
-        <div className='App row'>
+        <div className='App row justify-content-center'>
+            <div className='col-12 mt-3'>
+                <h3 className='title text-white font-weight-bold'>
+                    YoutubeParty 🎉
+                </h3>
+            </div>
+            <div className='col-12'>
+                <p className='text-white font-weight-bold'>
+                    Invite people to your party using the code <b> {`${roomId}`} </b>
+                </p>
+            </div>
+            <div className='col-auto'>
+                <p className='text-white font-weight-bold'>
+                    Or join someones room
+                </p>
+            </div>
+            <div className='col-auto'>
+                <input
+                    className='form-control'
+                    placeholder='Enter Room Id'
+                />
+            </div>
+            <div className='col-auto'>
+                <button
+                    type='submit'
+                    className='btn btn-primary'
+                >
+                    Join
+                </button>
+            </div>
+            <div className='col-12 py-4 px-2'>
+                <div id='ytplayer' className='w-100'>
+                </div>
+                <div
+                    id='progess-bar'
+                    className='row rounded border'
+                    onClick={(event) => seekSecondOnTap(event)}
+                >
+                    <div className='col-12' style={{ height: '20px' }}>
+                        <div className='slider row h-100'>
+                            <div
+                                className='col-auto position-absolute rounded'
+                                style={{ background: 'white', width: '3px', left: `${sliderX}px`, height: '20px' }}
+                            >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className='col-12'>
+            </div>
+            <div className='col-12 mt-1 mb-4'>
+                <button
+                    type='button'
+                    className='btn btn-dark mx-2 control-button'
+                    onClick={() => playPlayer()}
+                >
+                    Play
+                </button>
+                <button
+                    type='button'
+                    className='btn btn-dark mx-2 control-button'
+                    onClick={() => stopPlayer()}
+                >
+                    Pause
+                </button>
+            </div>
             <div className='col-6 mx-auto'>
                 <form onSubmit={handleSubmit}>
                     <div className='form-group'>
@@ -163,45 +231,6 @@ const App = ()  => {
                         </button>
                     </div>
                 </form>
-            </div>
-            <div className='col-12 py-4 px-2'>
-                <div id='ytplayer' className='w-100'>
-                </div>
-                <div
-                    id='progess-bar'
-                    className='row'
-                    onClick={(event) => seekSecondOnTap(event)}
-                >
-                    <div className='col-12' style={{ background: 'black', height: '20px' }}>
-                        <div className='slider row'>
-                            <div
-                                className='col-auto'
-                                style={{ background: 'white', width: '5px', position: 'absolute', left: `${sliderX}px` }}
-                            >
-                                s
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div className='col-12 mt-5'>
-
-            </div>
-            <div className='col-12'>
-                <button
-                    type='button'
-                    className='btn btn-dark mx-2'
-                    onClick={() => playPlayer()}
-                >
-                    Play
-                </button>
-                <button
-                    type='button'
-                    className='btn btn-dark mx-2'
-                    onClick={() => stopPlayer()}
-                >
-                    Pause
-                </button>
             </div>
         </div>
     )

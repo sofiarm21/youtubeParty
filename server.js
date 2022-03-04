@@ -11,20 +11,24 @@ const io = new Server(httpServer, {
 })
 
 const playVideo  = (socket, arg) => {
-    socket.broadcast.emit('video:play', arg)
+    const { room } = arg
+    socket.broadcast.to(room).emit('video:play', arg)
 }
 
 const stopVideo = (socket, arg) => {
-    socket.broadcast.emit('video:stop', arg)
+    const { room } = arg
+    socket.broadcast.to(room).emit('video:stop', arg)
 }
 
 const seekVideo = (socket, arg) => {
-    socket.broadcast.emit('video:seek', arg)
+    const { room, sc } = arg
+    socket.broadcast.to(room).emit('video:seek', sc)
 }
 
 const changeVideo = (socket, arg) => {
     console.log('video:change ' + arg);
-    socket.broadcast.emit('video:change', arg)
+    const { room, sc } = arg
+    socket.broadcast.to(room).emit('video:change', sc)
 }
 
 io.on('connection', (socket) => {
@@ -36,6 +40,7 @@ const onConnection = (socket) => {
     socket.on('video:stop', (arg) => stopVideo(socket, arg))
     socket.on('video:seek', (arg) => seekVideo(socket, arg))
     socket.on('video:change', (arg) => changeVideo(socket, arg))
+    socket.on('room:join', (arg) => socket.join(arg))
 }
 
 httpServer.listen(3001, () => {

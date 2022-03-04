@@ -1,12 +1,13 @@
 const { io } = require('socket.io-client');
 
+
 const URL = 'http://localhost:3001/';
 const socket = io(URL);
 console.log('socket');
 console.log(socket);
 
 
-socket.on('connect', () => {
+socket.on('connect', (args) => {
     console.log('Successfully connected!');
     console.log(socket.id);
 })
