@@ -13,6 +13,16 @@ const App = ()  => {
     const bar = document.getElementById('progess-bar')
 
     useEffect(() => {
+        if (!window.YT) {
+            loadYT()
+            window.onYouTubeIframeAPIReady = onYouTubePlayerAPIReady
+        } else {
+            onYouTubePlayerAPIReady(window.YT)
+        }
+        socket.connect()
+    }, [])
+
+    useEffect(() => {
         socket.on('video:play', () => {
             if (ytPlayer != null) {
                 if (ytPlayer.playerInfo.playerState == 3) {
@@ -30,23 +40,18 @@ const App = ()  => {
             seekSecond(sc)
         })
         socket.on('video:change', (id) => {
+            console.log('video:change');
             setYoutubeVideoId(id)
+            if (ytPlayer) {
+                ytPlayer.pauseVideo()
+            }
         })
     },[socket, ytPlayer])
 
     useEffect(() => {
-        if (!window.YT) {
-            loadYT()
-            window.onYouTubeIframeAPIReady = onYouTubePlayerAPIReady
-        } else {
-            onYouTubePlayerAPIReady(window.YT)
-        }
-        socket.connect()
-    }, [])
-
-    useEffect(() => {
         if (youtubeVideoId && ytPlayer) {
-            ytPlayer.loadVideoById(youtubeVideoId, 5, "large")
+            ytPlayer.loadVideoById(youtubeVideoId, 'large')
+            setVideoDuration(ytPlayer.playerInfo.duration ?? null)
         }
     }, [youtubeVideoId])
 
@@ -68,16 +73,13 @@ const App = ()  => {
 
     const onPlayerReady = (event) => {
         setVideoDuration(event.target.playerInfo.duration)
-        //event.target.playVideo()
     }
 
     const onPlayerStateChange = (event) => {
         if (event.data == window.YT.PlayerState.PLAYING) {
-            //socket.emit('video:play', event.target.playerInfo.currentTime)
-            event.target.unMute()
-        } else if (event.data == window.YT.PlayerState.PAUSED) {
-            //socket.emit('video:stop', event.target.playerInfo.currentTime)
-        } else if (event.data == window.YT.PlayerState.BUFFERING) {
+            if (!videoDuration && event.target.playerInfo) {
+                setVideoDuration(event.target.playerInfo.duration)
+            }
         }
     }
 
@@ -94,9 +96,9 @@ const App = ()  => {
             height: window.screen.height - 200,
             videoId: 'M7lc1UVf-VE',
             playerVars: {
-                'autoplay': 1,
+                'autoplay': 0,
                 'controls': 0,
-                'mute': 1
+                //'mute': 1
                 // 'disablekb': 1,
                 // 'modestbranding': 1,
                 // 'rel': 0,
@@ -131,9 +133,9 @@ const App = ()  => {
     }
 
     const handleSubmit = (event) => {
-        console.log(event.target[0].value);
         socket.emit('video:change', event.target[0].value)
         setYoutubeVideoId(event.target[0].value)
+        ytPlayer.pauseVideo()
         event.preventDefault();
     }
 
