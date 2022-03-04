@@ -4,11 +4,13 @@ import socket from './socket'
 
 const App = ()  => {
 
+    const random = (min, max) => Math.floor(Math.random() * (max - min)) + min;
+
     const [ytPlayer, setYtPlayer] = useState(null)
     const [videoDuration, setVideoDuration] = useState(null)
     const [sliderX, setSliderX] = useState(0)
     const [youtubeVideoId, setYoutubeVideoId] = useState(null)
-    const [roomId, setRoomId] = useState('1234')
+    const [roomId, setRoomId] = useState(`${random(1, 999999)}`)
 
     const bar = document.getElementById('progess-bar')
 
@@ -20,7 +22,7 @@ const App = ()  => {
             onYouTubePlayerAPIReady(window.YT)
         }
         socket.connect()
-        socket.emit('room:join', '1234')
+        socket.emit('room:join', roomId)
     }, [])
 
     useEffect(() => {
