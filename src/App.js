@@ -59,8 +59,6 @@ const App = ()  => {
 
     const playPlayer = () => {
         if (ytPlayer != null) {
-            console.log('socket');
-            console.log(socket);
             socket.emit('video:play', { room: roomId })
             ytPlayer.playVideo()
         }
@@ -87,7 +85,7 @@ const App = ()  => {
 
     const loadYT = async () => {
         const tag = document.createElement('script');
-        tag.src = await 'http://www.youtube.com/player_api'
+        tag.src = await 'https://www.youtube.com/player_api'
         const firstScriptTag = document.getElementsByTagName('script')[0]
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag)
     }
