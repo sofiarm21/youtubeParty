@@ -1,6 +1,10 @@
 const express = require('express')
 const { createServer } = require('http')
 const { Server } = require('socket.io')
+const bodyParser = require('body-parser')
+const fs = require('fs')
+
+
 
 const isProduction = process.env.NODE_ENV === 'production';
 const port = isProduction ? process.env.PORT : 3001;
@@ -9,9 +13,24 @@ const app = express()
 const httpServer = createServer(app)
 const io = new Server(httpServer, {
     cors: {
-        origin: process.env.NODE_ENV === 'production' ? 'https://youtube-house-party.herokuapp.com' : 'http://localhost:3000'
+        origin: isProduction ? 'https://youtube-house-party.herokuapp.com' : 'http://localhost:3000'
     }
 })
+
+app.use(express.static(__dirname + '/build'))
+app.use(bodyParser.json())
+
+app.get('*', function (req, res, next) {
+    // Prevents an HTML response for API calls
+    if (req.path.indexOf('/api/') != -1) {
+        return next();
+    }
+    fs.readFile(__dirname + '/build/index.html', 'utf8', function (err, text) {
+        res.send(text);
+    })
+})
+
+
 
 const playVideo  = (socket, arg) => {
     const { room } = arg
