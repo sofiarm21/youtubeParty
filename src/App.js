@@ -97,12 +97,7 @@ const App = ()  => {
             videoId: 'M7lc1UVf-VE',
             playerVars: {
                 'autoplay': 0,
-                'controls': 0,
-                //'mute': 1
-                // 'disablekb': 1,
-                // 'modestbranding': 1,
-                // 'rel': 0,
-                // 'showinfo': 0
+                'controls': 0
             },
             events: {
                 onReady: onPlayerReady,
