@@ -52,7 +52,10 @@ const App = ()  => {
 
     useEffect(() => {
         if (youtubeVideoId && ytPlayer) {
-            ytPlayer.loadVideoById(youtubeVideoId, 'large')
+            ytPlayer.loadVideoById({
+                'videoId': youtubeVideoId,
+                'startSeconds': 0
+            })
             setVideoDuration(ytPlayer.playerInfo.duration ?? null)
         }
     }, [youtubeVideoId])
@@ -97,7 +100,7 @@ const App = ()  => {
         const player = new window.YT.Player('ytplayer', {
             width: window.screen.width,
             height: window.screen.height - 200,
-            videoId: 'M7lc1UVf-VE',
+            videoId: 'uxR_sTZnBtg',
             playerVars: {
                 'autoplay': 0,
                 'controls': 0
