@@ -81,6 +81,9 @@ const App = ()  => {
                 setVideoDuration(event.target.playerInfo.duration)
             }
         }
+        if (event.data == -1) {
+            stopPlayer()
+        }
     }
 
     const loadYT = async () => {
@@ -158,7 +161,7 @@ const App = ()  => {
                 <div className='card video-settings border-0 bg-light'>
                     <div className=''>
                         <button
-                            className='accordion-button video-settings-header text-white'
+                            className='accordion-button video-settings-header text-white ml-2'
                             type='button'
                             data-bs-toggle='collapse'
                             data-bs-target='#collapseOne'
