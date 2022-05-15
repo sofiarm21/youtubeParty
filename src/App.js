@@ -273,9 +273,7 @@ const App = ()  => {
                     Pause
                 </button>
             </div>
-            <div className='col-6 mx-auto'>
-
-            </div>
+            <div className='col-6 mx-auto'/>
         </div>
     )
 
