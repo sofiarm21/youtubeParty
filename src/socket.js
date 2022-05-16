@@ -20,7 +20,7 @@ socket.on('connect_error', (error) => {
 
 
 socket.onAny((event, ...args) => {
-    console.log('socket any');
+    console.log('event received');
     console.log(event, args);
     console.log(socket.connected);
 });
