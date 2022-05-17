@@ -10,6 +10,7 @@ socket.on('connect', (args) => {
 })
 
 socket.on('disconnect', () => {
+    console.log('Successfully disconnected!');
     console.log(socket.connected);
 })
 
