@@ -4,7 +4,7 @@ import socket from './socket'
 
 const App = ()  => {
 
-    const random = (min, max) => Math.floor(Math.random() * (max - min)) + min;
+    const random = (min, max) => Math.floor(Math.random() * (max - min)) + min
 
     const [ytPlayer, setYtPlayer] = useState(null)
     const [videoDuration, setVideoDuration] = useState(null)
@@ -108,7 +108,7 @@ const App = ()  => {
             events: {
                 onReady: onPlayerReady,
                 onStateChange: onPlayerStateChange
-            },
+            }
         })
         if (!ytPlayer) {
             setYtPlayer(player)
@@ -122,7 +122,11 @@ const App = ()  => {
     }
 
     const seekSecondOnTap = (event) => {
-        if (bar && event.clientY > bar.getBoundingClientRect().top && event.clientY < bar.getBoundingClientRect().bottom) {
+        if (
+                bar && 
+                event.clientY > bar.getBoundingClientRect().top && 
+                event.clientY < bar.getBoundingClientRect().bottom
+        ) {
             const pxPerSecond = bar.getBoundingClientRect().width / videoDuration
             setSliderX(event.clientX)
             if (ytPlayer) {
@@ -137,12 +141,12 @@ const App = ()  => {
         socket.emit('video:change', { room: roomId, sc: event.target[0].value })
         setYoutubeVideoId(event.target[0].value)
         ytPlayer.pauseVideo()
-        event.preventDefault();
+        event.preventDefault()
     }
 
     const joinNewSocketRoom = () => {
         const value =  document.getElementById('new-socket-room-id').value
-        console.log(value);
+        console.log(value)
         setRoomId(value)
         socket.emit('room:join', value)
     }
